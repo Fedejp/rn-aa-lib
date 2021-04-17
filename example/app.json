@@ -1,0 +1,22 @@
+{
+  "name": "rn-aa-lib-example",
+  "displayName": "RnAaLib Example",
+  "expo": {
+    "name": "rn-aa-lib-example",
+    "slug": "rn-aa-lib-example",
+    "description": "Example app for rn-aa-lib",
+    "privacy": "public",
+    "version": "1.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
