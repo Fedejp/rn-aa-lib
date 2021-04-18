@@ -6,7 +6,7 @@ workflows:
     jobs:
       - artifactory/upload:
           build-steps:
-            - run: mvn install -B
-          name: Publish Maven Jar
-          source: test/artifact.jar
+            - run: npm pack
+          name: install npm
+          source: ./lib
           target: repo/path
