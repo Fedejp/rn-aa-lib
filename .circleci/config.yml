@@ -1,22 +1,12 @@
-version: 2
-jobs:
-  upload-artifact:
-    docker:
-      - image: cimg/node:14.16ß
-    working_directory: ~/rn-aa-lib
-    steps:
-      - checkout
-      - run:
-          name: npm prepare
-          command: |
-            npm install
-      - run:
-          name: Install jFrog CLI
-          command: curl -fL https://getcli.jfrog.io | sh
-      - run:
-          name: Push to Artifactory
-          command: |
-            ./jfrog rt config --url $ARTIFACTORY_URL --user $ARTIFACTORY_USER --apikey $ARTIFACTORY_APIKEY --interactive=false
-            ./jfrog rt u ./ arqapps-2021-npm --build-name=dev-build --build-number=$CIRCLE_BUILD_NUM
-            ./jfrog rt bce dev-build $CIRCLE_BUILD_NUM  # collects all environment variables on the agent
-            ./jfrog rt bp dev-build $CIRCLE_BUILD_NUM  # attaches ^^ to the build in artifactory
+orbs:
+  artifactory: circleci/artifactory@1.0.0
+version: 2.1
+workflows:
+  publish:
+    jobs:
+      - artifactory/upload:
+          build-steps:
+            - run: mvn install -B
+          name: Publish Maven Jar
+          source: test/artifact.jar
+          target: repo/path
