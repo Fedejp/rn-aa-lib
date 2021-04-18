@@ -2,15 +2,14 @@ version: 2
 jobs:
   upload-artifact:
     docker:
-      - image: circleci/openjdk:8-jdk
-    working_directory: ~/repo
+      - image: cimg/node:14.16ß
+    working_directory: ~/rn-aa-lib
     steps:
       - checkout
-      - run: mvn dependency:go-offline
       - run:
-          name: maven build
+          name: npm prepare
           command: |
-            mvn clean install
+            npm install
       - run:
           name: Install jFrog CLI
           command: curl -fL https://getcli.jfrog.io | sh
