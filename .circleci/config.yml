@@ -1,5 +1,5 @@
 orbs:
-  artifactory: circleci/artifactory@1.0.1
+  artifactory: jfrog/artifactory@1.0.1
 version: 2.1
 workflows:
   publish:
