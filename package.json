@@ -44,7 +44,7 @@
   },
   "homepage": "https://github.com/Fedejp/rn-aa-lib#readme",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://arqapp2021.jfrog.io/artifactory/arqapps-2021-npm/"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^11.0.0",

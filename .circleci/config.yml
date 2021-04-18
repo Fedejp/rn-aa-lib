@@ -1,98 +1,23 @@
-version: 2.1
-
-executors:
-  default:
-    docker:
-      - image: circleci/node:10
-    working_directory: ~/project
-
-commands:
-  attach_project:
-    steps:
-      - attach_workspace:
-          at: ~/project
-
+version: 2
 jobs:
-  install-dependencies:
-    executor: default
+  upload-artifact:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    working_directory: ~/repo
     steps:
       - checkout
-      - attach_project
-      - restore_cache:
-          keys:
-            - dependencies-{{ checksum "package.json" }}
-            - dependencies-
-      - restore_cache:
-          keys:
-            - dependencies-example-{{ checksum "example/package.json" }}
-            - dependencies-example-
+      - run: mvn dependency:go-offline
       - run:
-          name: Install dependencies
+          name: maven build
           command: |
-            yarn install --cwd example --frozen-lockfile
-            yarn install --frozen-lockfile
-      - save_cache:
-          key: dependencies-{{ checksum "package.json" }}
-          paths: node_modules
-      - save_cache:
-          key: dependencies-example-{{ checksum "example/package.json" }}
-          paths: example/node_modules
-      - persist_to_workspace:
-          root: .
-          paths: .
-
-  lint:
-    executor: default
-    steps:
-      - attach_project
+            mvn clean install
       - run:
-          name: Lint files
-          command: |
-            yarn lint
-
-  typescript:
-    executor: default
-    steps:
-      - attach_project
+          name: Install jFrog CLI
+          command: curl -fL https://getcli.jfrog.io | sh
       - run:
-          name: Typecheck files
+          name: Push to Artifactory
           command: |
-            yarn typescript
-
-  unit-tests:
-    executor: default
-    steps:
-      - attach_project
-      - run:
-          name: Run unit tests
-          command: |
-            yarn test --coverage
-      - store_artifacts:
-          path: coverage
-          destination: coverage
-
-  build-package:
-    executor: default
-    steps:
-      - attach_project
-      - run:
-          name: Build package
-          command: |
-            yarn prepare
-
-workflows:
-  build-and-test:
-    jobs:
-      - install-dependencies
-      - lint:
-          requires:
-            - install-dependencies
-      - typescript:
-          requires:
-            - install-dependencies
-      - unit-tests:
-          requires:
-            - install-dependencies
-      - build-package:
-          requires:
-            - install-dependencies
+            ./jfrog rt config --url $ARTIFACTORY_URL --user $ARTIFACTORY_USER --apikey $ARTIFACTORY_APIKEY --interactive=false
+            ./jfrog rt u ./ arqapps-2021-npm --build-name=dev-build --build-number=$CIRCLE_BUILD_NUM
+            ./jfrog rt bce dev-build $CIRCLE_BUILD_NUM  # collects all environment variables on the agent
+            ./jfrog rt bp dev-build $CIRCLE_BUILD_NUM  # attaches ^^ to the build in artifactory
