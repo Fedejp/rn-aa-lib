@@ -7,6 +7,8 @@ workflows:
       - artifactory/upload:
           build-steps:
             - run: npm pack
-          name: install npm
-          source: ./lib
-          target: repo/path
+          docker:
+            - image: cimg/node:14.16.1
+          name: npm pack
+          source: lib
+          target: arqapps-2021-npm/.npm
