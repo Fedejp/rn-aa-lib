@@ -1,5 +1,5 @@
 orbs:
-  artifactory: circleci/artifactory@1.0.0
+  artifactory: circleci/artifactory@1.0.1
 version: 2.1
 workflows:
   publish:
@@ -11,4 +11,4 @@ workflows:
           docker: cimg/node:14.16.1
           name: npm pack
           source: lib
-          target: arqapps-2021-npm/.npm
+          target: arqapps-2021-npm-local/
