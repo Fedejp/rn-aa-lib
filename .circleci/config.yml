@@ -1,98 +1,49 @@
-version: 2.1
 
-executors:
-  default:
-    docker:
-      - image: circleci/node:10
-    working_directory: ~/project
-
-commands:
-  attach_project:
-    steps:
-      - attach_workspace:
-          at: ~/project
-
+# Java Maven CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-java/ for more details
+#
+version: 2
 jobs:
-  install-dependencies:
-    executor: default
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:8
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+
+    working_directory: ~/circleci-docker-artifactory
+
     steps:
       - checkout
-      - attach_project
-      - restore_cache:
-          keys:
-            - dependencies-{{ checksum "package.json" }}
-            - dependencies-
-      - restore_cache:
-          keys:
-            - dependencies-example-{{ checksum "example/package.json" }}
-            - dependencies-example-
-      - run:
-          name: Install dependencies
-          command: |
-            yarn install --cwd example --frozen-lockfile
-            yarn install --frozen-lockfile
+      - setup_remote_docker
+
       - save_cache:
-          key: dependencies-{{ checksum "package.json" }}
-          paths: node_modules
-      - save_cache:
-          key: dependencies-example-{{ checksum "example/package.json" }}
-          paths: example/node_modules
-      - persist_to_workspace:
-          root: .
-          paths: .
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
 
-  lint:
-    executor: default
-    steps:
-      - attach_project
-      - run:
-          name: Lint files
-          command: |
-            yarn lint
-
-  typescript:
-    executor: default
-    steps:
-      - attach_project
-      - run:
-          name: Typecheck files
-          command: |
-            yarn typescript
-
-  unit-tests:
-    executor: default
-    steps:
-      - attach_project
-      - run:
-          name: Run unit tests
-          command: |
-            yarn test --coverage
-      - store_artifacts:
-          path: coverage
-          destination: coverage
-
-  build-package:
-    executor: default
-    steps:
-      - attach_project
-      - run:
-          name: Build package
-          command: |
-            yarn prepare
-
-workflows:
-  build-and-test:
-    jobs:
-      - install-dependencies
-      - lint:
-          requires:
-            - install-dependencies
-      - typescript:
-          requires:
-            - install-dependencies
-      - unit-tests:
-          requires:
-            - install-dependencies
-      - build-package:
-          requires:
-            - install-dependencies
+      # Install JFrog CLI
+      - run: curl -fL https://getcli.jfrog.io | sh
+      # Configure Artifactory instance with JFrog CLI
+      - run: ./jfrog rt config --url $ARTIFACTORY_URL --user $ARTIFACTORY_USER --apikey $ARTIFACTORY_PASSWORD --interactive false
+      # Run NPM install command to pull dependency from Artifactory NPM registry
+      - run: ./jfrog rt npmi $NPM_DEV_REPO --build-name=$CIRCLE_JOB --build-number=$CIRCLE_BUILD_NUM
+      # Test NPM package
+      - run: npm test
+      # Run NPM publish command to publish created NPM package to Artifactory NPM registry
+      - run: ./jfrog rt npmp $NPM_DEV_REPO --build-name=$CIRCLE_JOB --build-number=$CIRCLE_BUILD_NUM
+      # Capture environment variables for build information
+      - run: ./jfrog rt bce $CIRCLE_JOB $CIRCLE_BUILD_NUM
+      # Publish build information to Artifactory
+      - run: ./jfrog rt bp $CIRCLE_JOB $CIRCLE_BUILD_NUM
+      # Scan Build through JFrog Xray (Optional)
+      - run: ./jfrog rt bs $CIRCLE_JOB $CIRCLE_BUILD_NUM
+      # Promote build to Staging
+      - run: ./jfrog rt bpr $CIRCLE_JOB $CIRCLE_BUILD_NUM $NPM_STAGE_REPO --status="Staged" --copy=true
+      # Promote build to Production
+      - run: ./jfrog rt bpr $CIRCLE_JOB $CIRCLE_BUILD_NUM $NPM_PROD_REPO --status="Promoting to Prod" --copy=true
+      # Distribute build to Bintray (This step requires JFrog Bintray. You can comment it if not using Bintray)
+      - run: ./jfrog rt bd $CIRCLE_JOB $CIRCLE_BUILD_NUM $NPM_DISTRIBUTION_REPO
