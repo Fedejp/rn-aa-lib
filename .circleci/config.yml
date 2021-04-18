@@ -10,5 +10,5 @@ workflows:
             - run: npm pack
           docker: cimg/node:14.16.1
           name: npm pack
-          source: lib
-          target: arqapps-2021-npm-local/
+          source: "*.tgz"
+          target: "arqapps-2021-npm/.npm"
