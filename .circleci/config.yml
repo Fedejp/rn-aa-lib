@@ -34,11 +34,8 @@ jobs:
       - attach_workspace:
           at: ~/rn-aa-lib
       - run:
-          name: Set registry URL
-          command: npm set registry https://arqapp2021.jfrog.io/artifactory/arqapps-2021-npm/
-      - run:
           name: Authenticate with registry
-          command: curl -${ARTIFACTORY_USER}:${ARTIFACTORY_API_KEY} http://${ARTIFACTORY_SERVER_DOMAIN}/artifactory/api/npm/auth
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
       - run:
           name: Publish package
           command: npm publish
