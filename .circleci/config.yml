@@ -38,7 +38,7 @@ jobs:
           command: npm set registry https://arqapp2021.jfrog.io/artifactory/arqapps-2021-npm/
       - run:
           name: Authenticate with registry
-          command: curl -${ARTIFACTORY_USER}:${ARTIFACTORY_API_KEY} http://${ARTIFACTORY_SERVER_DOMAIN}/artifactory/api/npm/auth
+          command: curl -uadmin:${ARTIFACTORY_API_KEY} http://${ARTIFACTORY_SERVER_DOMAIN}/artifactory/api/npm/auth
       - run:
           name: Publish package
           command: npm publish
