@@ -43,9 +43,6 @@
     "url": "https://github.com/Fedejp/rn-aa-lib/issues"
   },
   "homepage": "https://github.com/Fedejp/rn-aa-lib#readme",
-  "publishConfig": {
-    "registry": "https://arqapp2021.jfrog.io/artifactory/arqapps-2021-npm-local/"
-  },
   "devDependencies": {
     "@commitlint/config-conventional": "^11.0.0",
     "@react-native-community/eslint-config": "^2.0.0",
