@@ -7,6 +7,7 @@ export interface AASlideProps {
   imageUrl: string
 }
 
+
 export interface AACarouselProps {
   images: string[]
 }
