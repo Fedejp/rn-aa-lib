@@ -1,9 +1,28 @@
 orbs:
   artifactory-orb: jfrog/artifactory-orb@1.0.1
 version: 2.1
+
+
+
 workflows:
   publish:
     jobs:
+      - test-env:
+          docker: # use the Docker executor
+            # CircleCI node images available at: https://hub.docker.com/r/circleci/node/
+            - image: circleci/node:10.0-browsers
+          steps:
+            - run: 
+                name: 'Check user'
+                command:  echo ${ARTIFACTORY_USER} 
+            - run: 
+                name: 'Check URL'
+                command:  echo ${ARTIFACTORY_URL} 
+            - run: 
+                name: 'Check API'
+                command:  echo ${ARTIFACTORY_API_KEY} 
+
+
       - artifactory-orb/upload:
           build-steps:
             - run: npm i
