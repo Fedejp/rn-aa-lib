@@ -6,10 +6,13 @@ version: 2.1
 
 workflows:
   publish:
+    jobs:
       - artifactory-orb/upload:
           build-steps:
             - run: npm i
+            - run: npm pack
+            - run: npm publish
           docker: cimg/node:14.16.1
-          name: npm pack
+          name: npm i
           source: "*.tgz"
           target: "arqapps-2021-npm/.npm"
