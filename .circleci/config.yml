@@ -35,7 +35,7 @@ jobs:
           at: ~/rn-aa-lib
       - run:
           name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/repo/.npmrc
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/rn-aa-lib/.npmrc
       - run:
           name: Publish package
           command: npm publish
