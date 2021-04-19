@@ -42,6 +42,8 @@ jobs:
       - run:
           name: Publish package
           command: npm publish
+          command: `${ARTIFACTORY_USER}`
+          command: `${ARTIFACTORY_PWD}`
 
 workflows:
   version: 2
