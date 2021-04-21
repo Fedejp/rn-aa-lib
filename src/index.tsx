@@ -24,7 +24,11 @@ export interface AACarouselProps {
       >
         <Image
           source={{ uri: props.imageUrl}}
-          style={{ width: windowWidth * 0.9, height: windowHeight * 0.9 }}
+          style={{
+            width: windowWidth * 0.9,
+            height: windowHeight * 0.9,
+            borderWidth: 4,
+            borderColor: "#FF00AA"}}
         ></Image>
       </View>
     );
